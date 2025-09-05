@@ -1,10 +1,10 @@
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
 <!-- Uploaded to: SVG Repo, www.svgrepo.com, Transformed by: SVG Repo Mixer Tools -->
-<svg width="800px" height="800px" viewBox="0 0 32.00 32.00" xmlns="http://www.w3.org/2000/svg" fill="#c41718" stroke="#c41718" stroke-width="0.352" transform="rotate(0)">
-<g id="SVGRepo_bgCarrier" stroke-width="0" transform="translate(0,0), scale(1)">
-<rect x="0" y="0" width="32.00" height="32.00" rx="16" fill="#ffffff" strokewidth="0"/>
+<svg width="256px" height="256px" viewBox="-3.2 -3.2 38.40 38.40" xmlns="http://www.w3.org/2000/svg" fill="#ffffff" stroke="#ffffff" stroke-width="0.00032">
+<g id="SVGRepo_bgCarrier" stroke-width="0">
+<rect x="-3.2" y="-3.2" width="38.40" height="38.40" rx="19.2" fill="#ffffff" strokewidth="0"/>
 </g>
-<g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round" stroke="#CCCCCC" stroke-width="0.128"/>
+<g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round" stroke="#CCCCCC" stroke-width="0.44800000000000006"/>
 <g id="SVGRepo_iconCarrier">
 <title>file_type_actionscript</title>
 <path d="M2,15.281c1.918,0,2.11-1.055,2.11-1.918a17.119,17.119,0,0,0-.192-2.205,18.723,18.723,0,0,1-.192-2.205c0-2.4,1.63-3.452,3.836-3.452h.575V6.938H7.658c-1.534,0-2.11.767-2.11,2.205a14.412,14.412,0,0,0,.192,1.918,14.306,14.306,0,0,1,.192,2.014c0,1.726-.671,2.493-1.918,2.877v.1c1.151.288,1.918,1.151,1.918,2.877a14.306,14.306,0,0,1-.192,2.014,13,13,0,0,0-.192,1.918c0,1.438.575,2.3,2.11,2.3h.479V26.6H7.562c-2.205,0-3.836-.959-3.836-3.644a18.723,18.723,0,0,1,.192-2.205,15.68,15.68,0,0,0,.192-2.11c0-.863-.288-1.918-2.11-1.918Z" style="fill:#c41718"/>

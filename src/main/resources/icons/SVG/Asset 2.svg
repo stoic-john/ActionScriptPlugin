@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Layer_2" data-name="Layer 2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 612 792">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: #fff;
+      }
+
+      .cls-2 {
+        fill: #c42126;
+        font-family: CascadiaCodeRoman-SemiBold, 'Cascadia Code';
+        font-size: .2px;
+        font-variation-settings: 'wght' 600;
+        font-weight: 600;
+      }
+    </style>
+  </defs>
+  <g id="Layer_1-2" data-name="Layer 1">
+    <circle class="cls-1" cx="306.5" cy="396.5" r=".13"/>
+    <text class="cls-2" transform="translate(306.37 396.57) scale(1.09 1)"><tspan x="0" y="0">{}</tspan></text>
+  </g>
+</svg>

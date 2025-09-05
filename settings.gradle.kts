@@ -1,1 +1,1 @@
-rootProject.name = "ActionScriptPlugin"
+rootProject.name = "ActionScript"

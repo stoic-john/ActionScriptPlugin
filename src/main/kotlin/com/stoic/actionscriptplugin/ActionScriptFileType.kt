@@ -12,6 +12,6 @@ class ActionScriptFileType : LanguageFileType(ActionScriptLanguage.Companion.INS
     override fun getDescription() = "ActionScript files"
     override fun getDefaultExtension() = "as"
     override fun getIcon(): Icon? {
-        return AllIcons.FileTypes.Text
+        return ActionScriptIcons.File16
     }
 }
