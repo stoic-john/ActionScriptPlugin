@@ -25,6 +25,11 @@ class ActionScriptSyntaxHighlighter : SyntaxHighlighterBase() {
             "AS_COMMENT",
             DefaultLanguageHighlighterColors.LINE_COMMENT
         )
+        
+        val BLOCK_COMMENT = TextAttributesKey.createTextAttributesKey(
+            "AS_BLOCK_COMMENT",
+            DefaultLanguageHighlighterColors.BLOCK_COMMENT
+        )
 
         val NUMBER = TextAttributesKey.createTextAttributesKey(
             "AS_NUMBER",
@@ -45,6 +50,7 @@ class ActionScriptSyntaxHighlighter : SyntaxHighlighterBase() {
         val KEYWORD_TOKEN = IElementType("AS_KEYWORD", null)
         val STRING_TOKEN = IElementType("AS_STRING", null)
         val COMMENT_TOKEN = IElementType("AS_COMMENT", null)
+        val BLOCK_COMMENT_TOKEN = IElementType("AS_BLOCK_COMMENT", null)
         val NUMBER_TOKEN = IElementType("AS_NUMBER", null)
     }
 
@@ -93,12 +99,36 @@ class ActionScriptSyntaxHighlighter : SyntaxHighlighterBase() {
                         currentToken = TokenType.WHITE_SPACE
                     }
 
-                    char == '/' && position + 1 < endOffset && buffer[position + 1] == '/' -> {
-                        while (position < endOffset && buffer[position] != '\n') {
-                            position++
+                    char == '/' && position + 1 < endOffset -> {
+                        when (buffer[position + 1]) {
+                            '/' -> {
+                                // Single-line comment
+                                while (position < endOffset && buffer[position] != '\n') {
+                                    position++
+                                }
+                                tokenEnd = position
+                                currentToken = COMMENT_TOKEN
+                            }
+                            '*' -> {
+                                // Block comment
+                                position += 2 // Skip /*
+                                while (position + 1 < endOffset) {
+                                    if (buffer[position] == '*' && buffer[position + 1] == '/') {
+                                        position += 2 // Skip */
+                                        break
+                                    }
+                                    position++
+                                }
+                                tokenEnd = position
+                                currentToken = BLOCK_COMMENT_TOKEN
+                            }
+                            else -> {
+                                // Just a regular slash
+                                position++
+                                tokenEnd = position
+                                currentToken = TokenType.WHITE_SPACE
+                            }
                         }
-                        tokenEnd = position
-                        currentToken = COMMENT_TOKEN
                     }
 
                     char == '"' -> {
@@ -159,6 +189,7 @@ class ActionScriptSyntaxHighlighter : SyntaxHighlighterBase() {
             KEYWORD_TOKEN -> arrayOf(KEYWORD)
             STRING_TOKEN -> arrayOf(STRING)
             COMMENT_TOKEN -> arrayOf(COMMENT)
+            BLOCK_COMMENT_TOKEN -> arrayOf(BLOCK_COMMENT)
             NUMBER_TOKEN -> arrayOf(NUMBER)
             else -> emptyArray()
         }

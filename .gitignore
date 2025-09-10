@@ -47,3 +47,4 @@ bin/
 
 .gradle/
 gradle-app.setting
+/.kotlin/
