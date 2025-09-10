@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(mkdir:*)",
+      "Bash(./gradlew:*)",
+      "Bash(chmod:*)",
+      "Bash(bash gradlew clean buildPlugin)",
+      "Bash(dos2unix:*)",
+      "Bash(sed:*)",
+      "Bash(java:*)",
+      "Bash(apt list:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

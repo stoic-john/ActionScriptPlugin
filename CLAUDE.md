@@ -1,0 +1,2 @@
+- This is a JetBrains IntelliJ IDEA/Rider plugin for ActionScript3 development.
+- It provides code completion, syntax highlighting, and other features to enhance the development experience.

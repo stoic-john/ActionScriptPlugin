@@ -35,4 +35,13 @@
                 language="ActionScript"
                 implementationClass="com.stoic.actionscriptplugin.ActionScriptSyntaxHighlighterFactory"/>
     </extensions>
+    
+    <actions>
+        <action id="ActionScript.NewFile"
+                class="com.stoic.actionscriptplugin.actions.CreateActionScriptFileAction"
+                text="ActionScript File"
+                description="Create new ActionScript file">
+            <add-to-group group-id="NewGroup" anchor="after" relative-to-action="NewFile"/>
+        </action>
+    </actions>
 </idea-plugin>

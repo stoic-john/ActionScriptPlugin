@@ -1,0 +1,11 @@
+package ${PACKAGE_NAME} {
+    
+    public class ${NAME} {
+        
+        public function ${NAME}() {
+            // Constructor
+        }
+        
+    }
+    
+}
