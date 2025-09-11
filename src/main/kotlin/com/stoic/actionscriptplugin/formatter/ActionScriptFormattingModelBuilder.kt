@@ -68,6 +68,15 @@ class ActionScriptBlock(
         val text1 = child1.node.text
         val text2 = child2.node.text
         
+        // Newlines after closing braces for statements/declarations
+        if (type1 == ActionScriptTokenTypes.RBRACE) {
+            // Always newline after closing brace of function, class, or block
+            if (isStatementKeyword(type2)) {
+                return Spacing.createSpacing(0, 0, 2, true, 1)
+            }
+            return Spacing.createSpacing(0, 0, 1, true, 1)
+        }
+        
         // Special handling for braces
         if (type1 == ActionScriptTokenTypes.LBRACE || type2 == ActionScriptTokenTypes.RBRACE) {
             // Always newline after { and before }
@@ -81,6 +90,25 @@ class ActionScriptBlock(
                 }
                 return Spacing.createSpacing(0, 0, 1, true, 0)
             }
+        }
+        
+        // Handle modifiers - no newlines between modifiers and their declarations
+        if (isModifier(type1) && (type2 == ActionScriptTokenTypes.CLASS || 
+                                  type2 == ActionScriptTokenTypes.FUNCTION ||
+                                  type2 == ActionScriptTokenTypes.VAR ||
+                                  type2 == ActionScriptTokenTypes.CONST ||
+                                  type2 == ActionScriptTokenTypes.INTERFACE)) {
+            return Spacing.createSpacing(1, 1, 0, false, 0)
+        }
+        
+        // No newlines between consecutive modifiers
+        if (isModifier(type1) && isModifier(type2)) {
+            return Spacing.createSpacing(1, 1, 0, false, 0)
+        }
+        
+        // Newlines between complete declarations (not just keywords)
+        if (isCompleteDeclaration(child1) && isDeclarationStart(child2)) {
+            return Spacing.createSpacing(0, 0, 2, true, 1)
         }
         
         // Newline after semicolon when not in for loop
@@ -181,35 +209,116 @@ class ActionScriptBlock(
 
     private fun getChildIndent(child: ASTNode): Indent {
         val childType = child.elementType
-        val childText = child.text
         
-        // Never indent the closing brace itself
+        // Handle closing braces - they should align with their opening statement
         if (childType == ActionScriptTokenTypes.RBRACE) {
-            return Indent.getNoneIndent()
-        }
-        
-        // Check if this child is inside a block (has a preceding LBRACE sibling)
-        if (hasOpenBraceBefore(child)) {
-            return Indent.getNormalIndent()
-        }
-        
-        // Check if parent contains an opening brace
-        if (node.text?.contains("{") == true && !childText.contains("}")) {
-            // Find if child comes after the brace
-            var current = node.firstChildNode
-            var foundBrace = false
-            while (current != null) {
-                if (current.elementType == ActionScriptTokenTypes.LBRACE) {
-                    foundBrace = true
-                }
-                if (current == child && foundBrace) {
-                    return Indent.getNormalIndent()
-                }
-                current = current.treeNext
+            val matchingOpenBraceLevel = findMatchingOpenBraceLevel(child)
+            return when (matchingOpenBraceLevel) {
+                0 -> Indent.getNoneIndent()
+                1 -> Indent.getNormalIndent()
+                else -> Indent.getSpaceIndent(matchingOpenBraceLevel * 4)
             }
         }
         
-        return Indent.getNoneIndent()
+        // Determine indentation level based on context
+        val indentLevel = calculateIndentLevel(child)
+        
+        return when (indentLevel) {
+            0 -> Indent.getNoneIndent()
+            1 -> Indent.getNormalIndent()
+            else -> Indent.getSpaceIndent(indentLevel * 4) // 4 spaces per level
+        }
+    }
+    
+    private fun findMatchingOpenBraceLevel(closingBrace: ASTNode): Int {
+        var braceCount = 1 // We start with the closing brace we're trying to match
+        var current = closingBrace.treePrev
+        var indentLevel = 0
+        
+        while (current != null && braceCount > 0) {
+            when (current.elementType) {
+                ActionScriptTokenTypes.RBRACE -> braceCount++
+                ActionScriptTokenTypes.LBRACE -> {
+                    braceCount--
+                    if (braceCount == 0) {
+                        // Found matching opening brace, now find the indentation of its statement
+                        return findStatementIndentLevel(current)
+                    }
+                }
+            }
+            current = current.treePrev
+        }
+        
+        return 0
+    }
+    
+    private fun findStatementIndentLevel(openBrace: ASTNode): Int {
+        // Look backwards to find the statement that owns this opening brace
+        var current = openBrace.treePrev
+        var level = 0
+        
+        // Skip whitespace and find the actual statement
+        while (current != null && current.elementType == ActionScriptTokenTypes.WHITE_SPACE) {
+            current = current.treePrev
+        }
+        
+        // Count how many braces we're nested inside before this statement
+        var searchNode = current?.treePrev
+        while (searchNode != null) {
+            when (searchNode.elementType) {
+                ActionScriptTokenTypes.LBRACE -> level++
+                ActionScriptTokenTypes.RBRACE -> level--
+            }
+            searchNode = searchNode.treePrev
+        }
+        
+        return Math.max(0, level)
+    }
+    
+    private fun calculateIndentLevel(child: ASTNode): Int {
+        // Simple approach: count how many open braces we're inside
+        var level = 0
+        var current = child.treePrev
+        
+        // Count braces in the current scope
+        while (current != null) {
+            when (current.elementType) {
+                ActionScriptTokenTypes.LBRACE -> level++
+                ActionScriptTokenTypes.RBRACE -> level--
+            }
+            current = current.treePrev
+        }
+        
+        // Also check parent nodes for additional nesting
+        var parent = child.treeParent
+        while (parent != null) {
+            if (containsOpeningBrace(parent)) {
+                var parentCurrent = parent.firstChildNode
+                var parentBraceLevel = 0
+                while (parentCurrent != null && parentCurrent != child.treeParent) {
+                    when (parentCurrent.elementType) {
+                        ActionScriptTokenTypes.LBRACE -> parentBraceLevel++
+                        ActionScriptTokenTypes.RBRACE -> parentBraceLevel--
+                    }
+                    parentCurrent = parentCurrent.treeNext
+                }
+                level += parentBraceLevel
+            }
+            parent = parent.treeParent
+        }
+        
+        return Math.max(0, level)
+    }
+    
+    private fun containsOpeningBrace(node: ASTNode): Boolean {
+        var child = node.firstChildNode
+        while (child != null) {
+            if (child.elementType == ActionScriptTokenTypes.LBRACE) {
+                return true
+            }
+            child = child.treeNext
+        }
+        return false
     }
     
     private fun hasOpenBraceBefore(child: ASTNode): Boolean {
@@ -283,5 +392,50 @@ class ActionScriptBlock(
     
     private fun isKeyword(type: com.intellij.psi.tree.IElementType?): Boolean {
         return type in ActionScriptTokenTypes.allKeywords
+    }
+    
+    private fun isStatementKeyword(type: com.intellij.psi.tree.IElementType?): Boolean {
+        return type in setOf(
+            ActionScriptTokenTypes.CLASS,
+            ActionScriptTokenTypes.FUNCTION,
+            ActionScriptTokenTypes.INTERFACE,
+            ActionScriptTokenTypes.VAR,
+            ActionScriptTokenTypes.CONST,
+            ActionScriptTokenTypes.IF,
+            ActionScriptTokenTypes.FOR,
+            ActionScriptTokenTypes.WHILE,
+            ActionScriptTokenTypes.DO,
+            ActionScriptTokenTypes.SWITCH,
+            ActionScriptTokenTypes.TRY
+        )
+    }
+    
+    private fun isModifier(type: com.intellij.psi.tree.IElementType?): Boolean {
+        return type in setOf(
+            ActionScriptTokenTypes.PUBLIC,
+            ActionScriptTokenTypes.PRIVATE,
+            ActionScriptTokenTypes.PROTECTED,
+            ActionScriptTokenTypes.STATIC,
+            ActionScriptTokenTypes.FINAL,
+            ActionScriptTokenTypes.OVERRIDE
+        )
+    }
+    
+    private fun isCompleteDeclaration(block: ActionScriptBlock): Boolean {
+        // A complete declaration ends with a closing brace or semicolon
+        val text = block.node.text
+        return text.endsWith("}") || text.endsWith(";")
+    }
+    
+    private fun isDeclarationStart(block: ActionScriptBlock): Boolean {
+        val type = block.node.elementType
+        // A declaration starts with a modifier or declaration keyword
+        return isModifier(type) || type in setOf(
+            ActionScriptTokenTypes.CLASS,
+            ActionScriptTokenTypes.FUNCTION,
+            ActionScriptTokenTypes.INTERFACE,
+            ActionScriptTokenTypes.VAR,
+            ActionScriptTokenTypes.CONST
+        )
     }
 }
