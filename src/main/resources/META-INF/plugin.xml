@@ -34,6 +34,14 @@
         <lang.syntaxHighlighterFactory
                 language="ActionScript"
                 implementationClass="com.stoic.actionscriptplugin.ActionScriptSyntaxHighlighterFactory"/>
+        
+        <lang.parserDefinition
+                language="ActionScript"
+                implementationClass="com.stoic.actionscriptplugin.parser.ActionScriptParserDefinition"/>
+        
+        <lang.formatter
+                language="ActionScript"
+                implementationClass="com.stoic.actionscriptplugin.formatter.ActionScriptFormattingModelBuilder"/>
     </extensions>
     
     <actions>
